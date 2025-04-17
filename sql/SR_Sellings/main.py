@@ -48,7 +48,7 @@ def check_db_exist(path: str) -> bool:
 
 def main():
     '''Main function'''
-    path = './database.db'
+    path = './database/database.db'
     create_db(path, need_csv_filling=False)
     gui()
 
