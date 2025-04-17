@@ -17,14 +17,16 @@ insert_operation_query = "INSERT INTO operations (receipt_id, product_id, amount
 
 
 
-def get_connection(path: str):
+def get_connection(path: str = './database.db'):
     '''Return connection with DB'''
     conn = sqlite3.connect(path) 
     
     return conn
 
 
+# Используется одноразово
 def init_db(path: str):
+    '''DB initialization'''
     try:
         conn = get_connection(path)
         cursor = conn.cursor()
@@ -42,10 +44,65 @@ def init_db(path: str):
             conn.close()
 
 
-def create_operation():
-    ...
+def create_category(conn, data: list): # TODO доделать. conn создается во время сессии один раз, и передается постоянно.
+    '''Creating category'''
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        cursor.executemany(insert_category_query, data)
+    
+    except Exception as err:
+        print(f'Error while creating new category - {err}')
+    
+    finally:
+        if conn:
+            conn.close()
 
-def create_recipe():
-    ...
+
+def create_good(conn, data: list): # TODO доделать. conn создается во время сессии один раз, и передается постоянно.
+    '''Creating operation'''
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        cursor.executemany(insert_good_query, data)
+    
+    except Exception as err:
+        print(f'Error while creating new good - {err}')
+    
+    finally:
+        if conn:
+            conn.close()
 
 
+
+def create_operation(conn, data: list): # TODO доделать. conn создается во время сессии один раз, и передается постоянно.
+    '''Creating operation'''
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        cursor.executemany(insert_operation_query, data)
+    
+    except Exception as err:
+        print(f'Error while creating new operation - {err}')
+    
+    finally:
+        if conn:
+            conn.close()
+
+def create_receipt(conn, data: list): # TODO доделать. conn создается во время сессии один раз, и передается постоянно.
+    '''Creating receipt'''
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        cursor.executemany(insert_receipt_query, data)
+    
+    except Exception as err:
+        print(f'Error while creating new receipt - {err}')
+    
+    finally:
+        if conn:
+            conn.close()

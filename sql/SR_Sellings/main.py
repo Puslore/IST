@@ -20,6 +20,12 @@ def create_db(path: str, need_csv_filling: bool=False):
                 './csvs/goods.csv'
             ]
             data = import_from_csv(cvs_paths)
+            categories_data, goods_data = import_from_csv.items()
+            
+            for category in categories_data:
+                create_category(conn, category)
+            for good in goods_data:
+                create_good(conn, good)
 
         except Exception as err:
             print(f'Error with DB creating - {err}')
@@ -27,6 +33,7 @@ def create_db(path: str, need_csv_filling: bool=False):
         finally:
             if conn:
                 conn.close()
+            os.remove(path)
 
 
 def check_db_exist(path: str) -> bool:
