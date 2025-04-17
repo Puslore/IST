@@ -101,3 +101,15 @@ def create_receipt(conn, data): # TODO доделать. conn создается
     
     except Exception as err:
         print(f'Error while creating new receipt - {err}')
+
+
+def get_goods_names(conn):
+    ...
+
+
+def get_categories(conn):
+    ...
+
+
+def get_good_by_name(conn):
+    ...
