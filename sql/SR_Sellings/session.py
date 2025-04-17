@@ -44,46 +44,43 @@ def init_db(path: str):
             conn.close()
 
 
-def create_category(conn, data: list): # TODO доделать. conn создается во время сессии один раз, и передается постоянно.
+def create_category(conn, data): # TODO доделать. conn создается во время сессии один раз, и передается постоянно.
     '''Creating category'''
     try:
-        conn = get_connection()
         cursor = conn.cursor()
+        if type(data) is not list:
+            cursor.execute(insert_category_query, data)
         
-        cursor.executemany(insert_category_query, data)
+        else:
+            cursor.executemany(insert_category_query, data)
     
     except Exception as err:
         print(f'Error while creating new category - {err}')
-    
-    finally:
-        if conn:
-            conn.close()
 
 
-def create_good(conn, data: list): # TODO доделать. conn создается во время сессии один раз, и передается постоянно.
+def create_good(conn, data): # TODO доделать. conn создается во время сессии один раз, и передается постоянно.
     '''Creating operation'''
     try:
-        conn = get_connection()
         cursor = conn.cursor()
+        if type(data) is not list:
+            cursor.execute(insert_good_query, data)
         
-        cursor.executemany(insert_good_query, data)
+        else:
+            cursor.executemany(insert_good_query, data)
     
     except Exception as err:
         print(f'Error while creating new good - {err}')
-    
-    finally:
-        if conn:
-            conn.close()
 
 
-
-def create_operation(conn, data: list): # TODO доделать. conn создается во время сессии один раз, и передается постоянно.
+def create_operation(conn, data): # TODO доделать. conn создается во время сессии один раз, и передается постоянно.
     '''Creating operation'''
     try:
-        conn = get_connection()
         cursor = conn.cursor()
+        if type(data) is not list:
+            cursor.execute(insert_operation_query, data)
         
-        cursor.executemany(insert_operation_query, data)
+        else:
+            cursor.executemany(insert_operation_query, data)
     
     except Exception as err:
         print(f'Error while creating new operation - {err}')
@@ -92,17 +89,15 @@ def create_operation(conn, data: list): # TODO доделать. conn созда
         if conn:
             conn.close()
 
-def create_receipt(conn, data: list): # TODO доделать. conn создается во время сессии один раз, и передается постоянно.
+def create_receipt(conn, data): # TODO доделать. conn создается во время сессии один раз, и передается постоянно.
     '''Creating receipt'''
     try:
-        conn = get_connection()
         cursor = conn.cursor()
+        if type(data) is not list:
+            cursor.execute(insert_receipt_query, data)
         
-        cursor.executemany(insert_receipt_query, data)
+        else:
+            cursor.executemany(insert_receipt_query, data)
     
     except Exception as err:
         print(f'Error while creating new receipt - {err}')
-    
-    finally:
-        if conn:
-            conn.close()
