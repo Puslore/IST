@@ -1,5 +1,5 @@
 import sqlite3
-from models import *
+from database.models import *
 from datetime import datetime
 
 
