@@ -238,7 +238,6 @@ def create_sample_files():
         file.write('5\tИП Иванов И.И.\t79091234567\n')
 
 def import_data_from_files(cursor):
-    """Импортирует данные из внешних файлов (CSV, TXT)"""
     print('\n=== Импорт данных из внешних файлов ===')
     
     create_sample_files()
@@ -286,7 +285,7 @@ def import_data_from_files(cursor):
         print(f'ID: {row[0]}, Организация: {row[1]}, Телефон: {row[2]}')
 
 def main():
-    db_file = './test_base.db'
+    db_file = './database.db'
     
     connection = create_database_connection(db_file)
     cursor = connection.cursor()
