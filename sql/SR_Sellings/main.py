@@ -9,12 +9,12 @@ from controllers.controller import ShopController
 # TODO
 # window.py, controller.py
 
-def gui():
+def gui(path: str):
     '''creates GUI'''
     app = QApplication(sys.argv)
     
     # Создаем контроллер и передаем путь к базе данных
-    controller = ShopController("store.db")
+    controller = ShopController(path)
     
     # Проверяем соединение с БД
     if not controller.connect_to_db():
@@ -74,7 +74,7 @@ def main():
     '''Main function'''
     path = './database/database.db'
     create_db(path, need_csv_filling=False)
-    gui()
+    gui(path)
     # conn = get_connection(path)
     # print(get_goods_by_category(conn, 'Автотовары'))
 
