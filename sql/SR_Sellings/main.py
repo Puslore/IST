@@ -1,11 +1,35 @@
 import os
+import sys
 from csv_operations import import_from_csv
 from database.session import *
+from PyQt5.QtWidgets import QApplication
+from gui.window import ShopWindow
+from controllers.controller import ShopController
 
+# TODO
+# window.py, controller.py
 
 def gui():
     '''creates GUI'''
-    ...
+    app = QApplication(sys.argv)
+    
+    # Создаем контроллер и передаем путь к базе данных
+    controller = ShopController("store.db")
+    
+    # Проверяем соединение с БД
+    if not controller.connect_to_db():
+        print("Ошибка подключения к базе данных")
+        sys.exit(1)
+    
+    # Создаем главное окно и передаем ему контроллер
+    window = ShopWindow(controller)
+    window.show()
+    
+    # Выполняем приложение и корректно закрываем соединение с БД при выходе
+    try:
+        sys.exit(app.exec_())
+    finally:
+        controller.close_connection()
 
 
 def create_db(path: str, need_csv_filling: bool=False):
@@ -51,6 +75,8 @@ def main():
     path = './database/database.db'
     create_db(path, need_csv_filling=False)
     gui()
+    # conn = get_connection(path)
+    # print(get_goods_by_category(conn, 'Автотовары'))
 
 
 if __name__ == "__main__":
