@@ -15,6 +15,14 @@ insert_receipt_query = "INSERT INTO receipts (date, total_amount) VALUES (?, ?)"
 # Запрос для вставки операций
 insert_operation_query = "INSERT INTO operations (receipt_id, product_id, amount, price, total_price) VALUES (?, ?, ?, ?, ?)"
 
+# Запрос для обновления количества товара
+query = "UPDATE goods SET amount = ? WHERE name = ?"
+
+current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+# Запрос для создания чека
+query = "INSERT INTO receipts (product_name, quantity, total_price, date) VALUES (?, ?, ?, ?)"
+
 
 
 def get_connection(path: str):
@@ -168,7 +176,7 @@ def get_categories(conn) -> list:
         return []
 
 
-def get_good_by_name(conn, good_name: str):
+def get_good_by_name(conn, good_name: str) -> dict:
     '''Return whole information of good by name'''
     query = '''
     SELECT g.id, g.name, c.name AS category_name, g.price, g.amount
@@ -197,7 +205,7 @@ def get_good_by_name(conn, good_name: str):
         return {}
 
 
-def get_goods_by_category(conn, category):
+def get_goods_by_category(conn, category) -> list:
     '''Return list of goods by category'''
     query = '''
     SELECT g.name

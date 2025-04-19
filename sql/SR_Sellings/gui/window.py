@@ -1,18 +1,19 @@
 from PyQt5.QtWidgets import (QApplication, QMainWindow,
                              QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                              QComboBox, QSpinBox, QPushButton, QMessageBox)
+from controllers.controller import ShopController
 
 # TODO
 # доработать, исправить отображение товаров
 # ShopWindow.buy_product, ShopWindow.buy_receipts
 
 class ShopWindow(QMainWindow):
-    def __init__(self, controller):
+    def __init__(self, controller: ShopController):
         super().__init__()
         self.controller = controller
         self.setWindowTitle('Магазин')
         self.setGeometry(100, 100, 400, 250)
-        
+
         # Создаем центральный виджет и основной layout
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -23,14 +24,14 @@ class ShopWindow(QMainWindow):
         cat_label = QLabel('Категория:')
         self.cat_combo = QComboBox()
         self.load_categories()  # Загружаем категории из БД
-        
+
         # При выборе категории загружаем соответствующие товары
         self.cat_combo.currentIndexChanged.connect(self.load_products)
-        
+
         cat_layout.addWidget(cat_label)
         cat_layout.addWidget(self.cat_combo)
         main_layout.addLayout(cat_layout)
-        
+
         # Блок выбора продукта
         prod_layout = QHBoxLayout()
         prod_label = QLabel('Товар:')
@@ -44,7 +45,7 @@ class ShopWindow(QMainWindow):
         qty_layout = QHBoxLayout()
         qty_label = QLabel('Количество:')
         self.qty_spin = QSpinBox()
-        self.qty_spin.setRange(1, 100)  # Будет обновляться в зависимости от наличия товара
+        self.qty_spin.setRange(1, 10000)  # Будет обновляться в зависимости от наличия товара
         qty_layout.addWidget(qty_label)
         qty_layout.addWidget(self.qty_spin)
         main_layout.addLayout(qty_layout)
@@ -71,15 +72,26 @@ class ShopWindow(QMainWindow):
     def load_products(self):
         try:
             category_name = self.cat_combo.currentText()
-            # Ищем id категории по имени
-            products = self.controller.get_goods_by_category(category_name)
+            products_list = self.controller.get_goods_by_category(category_name)
+            products_data = []
+            for product in products_list:
+                product_info = self.get_product_info(product)
+                products_data.append(f'{product}, цена за шт: {product_info["price"]}, на складе:{product_info["amount"]} шт.')
 
             self.prod_combo.clear()
-            # self.prod_combo.addItems([product["name"] for product in products])
-            self.prod_combo.addItems(products)
+            self.prod_combo.addItems(products_data)
 
         except Exception as err:
             QMessageBox.critical(self, "Ошибка", f"Не удалось загрузить товары: {err}")
+    
+    def get_product_info(self, name: str) -> dict:
+        try:
+            product_data = self.controller.get_good_info(name)
+            return product_data
+        
+        except Exception as err:
+            print(f'ERROR WITH GOOD INFO --- {err}')
+            return {}
     
     def update_available_quantity(self):
         try:
@@ -106,7 +118,16 @@ class ShopWindow(QMainWindow):
         
         # TODO
         # Здесь должен быть вызов метода контроллера для оформления покупки
-        QMessageBox.information(self, "Успех", f"Куплено: {product_name} x {quantity}")
+        success = self.controller.process_purchase(product_name, quantity)
+        if success:
+            # Обновляем список товаров, чтобы отобразить измененное количество
+            self.load_products()
+            # Обновляем информацию о доступном количестве текущего товара
+            self.update_available_quantity()
+            QMessageBox.information(self, "Успех", success)
+
+        else:
+            QMessageBox.warning(self, "Ошибка", "Не удалось оформить покупку")
     
     def show_receipts(self):
         # TODO
