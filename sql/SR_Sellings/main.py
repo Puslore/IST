@@ -73,7 +73,7 @@ def check_db_exist(path: str) -> bool:
 def main():
     '''Main function'''
     path = './database/database.db'
-    create_db(path, need_csv_filling=False)
+    create_db(path, need_csv_filling=True)
     gui(path)
     # conn = get_connection(path)
     # print(get_goods_by_category(conn, 'Автотовары'))

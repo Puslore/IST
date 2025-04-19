@@ -77,9 +77,11 @@ class ShopWindow(QMainWindow):
             for product in products_list:
                 product_info = self.get_product_info(product)
                 products_data.append(f'{product}, цена за шт: {product_info["price"]}, на складе:{product_info["amount"]} шт.')
+            print(products_data, 'тут инфа о продуктах')
 
             self.prod_combo.clear()
             self.prod_combo.addItems(products_data)
+            print(self.prod_combo.currentText(), 'тут текст который в списке')
 
         except Exception as err:
             QMessageBox.critical(self, "Ошибка", f"Не удалось загрузить товары: {err}")
@@ -110,14 +112,13 @@ class ShopWindow(QMainWindow):
     
     def buy_product(self):
         product_name = self.prod_combo.currentText()
+        print(product_name, 'отладка в buy---------')
         quantity = self.qty_spin.value()
         
         if not product_name:
             QMessageBox.warning(self, "Предупреждение", "Выберите товар")
             return
         
-        # TODO
-        # Здесь должен быть вызов метода контроллера для оформления покупки
         success = self.controller.process_purchase(product_name, quantity)
         if success:
             # Обновляем список товаров, чтобы отобразить измененное количество

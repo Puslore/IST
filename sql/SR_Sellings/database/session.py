@@ -10,18 +10,18 @@ insert_category_query = "INSERT INTO categories (name) VALUES (?)"
 insert_good_query = "INSERT INTO goods (name, category_id, price, amount) VALUES (?, ?, ?, ?)"
 
 # Запрос для вставки чеков
-insert_receipt_query = "INSERT INTO receipts (date, total_amount) VALUES (?, ?)"
+# insert_receipt_query = "INSERT INTO receipts (date, total_amount) VALUES (?, ?)"
 
 # Запрос для вставки операций
-insert_operation_query = "INSERT INTO operations (receipt_id, product_id, amount, price, total_price) VALUES (?, ?, ?, ?, ?)"
+insert_receipt_query = "INSERT INTO receipts (product_id, amount, total_price) VALUES (?, ?, ?)"
 
 # Запрос для обновления количества товара
-query = "UPDATE goods SET amount = ? WHERE name = ?"
+update_quantity_query = "UPDATE goods SET amount = ? WHERE name = ?"
 
-current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+# current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 # Запрос для создания чека
-query = "INSERT INTO receipts (product_name, quantity, total_price, date) VALUES (?, ?, ?, ?)"
+query = "INSERT INTO receipts (product_id, amount, price, total_price) VALUES (?, ?, ?, ?)"
 
 
 
@@ -42,7 +42,7 @@ def init_db(path: str):
         cursor.execute(table_categories)
         cursor.execute(table_goods)
         cursor.execute(table_receipts)
-        cursor.execute(table_operations)
+        # cursor.execute(table_operations)
         
         print('---DB initialized correctly')
     
@@ -94,37 +94,17 @@ def create_good(conn, data):
         print(f'Error while creating new good - {err}')
 
 
-def create_operation(conn, data):
-    '''Creating operation'''
-    try:
-        cursor = conn.cursor()
-        if type(data) is not list:
-            cursor.execute(insert_operation_query, data)
-
-            print('---Operation created corrcetly')
-
-        else:
-            cursor.executemany(insert_operation_query, data)
-
-            print('---Operations created corrcetly')
-
-        conn.commit()
-
-    except Exception as err:
-        print(f'Error while creating new operation - {err}')
-
-
 def create_receipt(conn, data):
     '''Creating receipt'''
     try:
         cursor = conn.cursor()
-        if type(data) is not list:
-            cursor.execute(insert_receipt_query, data)
+        if type(data[0]) == int:
+            cursor.execute(insert_receipt_query, tuple(data))
 
             print('---Receipt created corrcetly')
 
         else:
-            cursor.executemany(insert_receipt_query, data)
+            cursor.executemany(insert_receipt_query, list(map(tuple, data)))
 
             print('---Receipts created corrcetly')
 
@@ -132,6 +112,26 @@ def create_receipt(conn, data):
 
     except Exception as err:
         print(f'Error while creating new receipt - {err}')
+
+
+# def create_receipt(conn, data):
+#     '''Creating receipt'''
+#     try:
+#         cursor = conn.cursor()
+#         if type(data) is not list:
+#             cursor.execute(insert_receipt_query, data)
+
+#             print('---Receipt created corrcetly')
+
+#         else:
+#             cursor.executemany(insert_receipt_query, data)
+
+#             print('---Receipts created corrcetly')
+
+#         conn.commit()
+
+#     except Exception as err:
+#         print(f'Error while creating new receipt - {err}')
 
 
 def get_goods_names_and_amount(conn) -> dict:
@@ -189,6 +189,7 @@ def get_good_by_name(conn, good_name: str) -> dict:
         cursor = conn.cursor()
         cursor.execute(query, (good_name,))
         data = cursor.fetchone()
+        print(data, 'flld,sfdsindashbvaiwuevfnwcywqvr3454678909976875645354566778')
         fields = [
             'id',
             'name',
@@ -197,6 +198,7 @@ def get_good_by_name(conn, good_name: str) -> dict:
             'amount'
         ]
         data = dict(zip(fields, data))
+        print(data, 'datadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadata')
 
         return data
 
@@ -226,3 +228,15 @@ def get_goods_by_category(conn, category) -> list:
     except Exception as err:
         print(f"Error while getting goods by category - {err}")
         return []
+    
+def update_good_quantity(conn, good_name: str, new_quantity: int) -> bool:
+    '''Update quantity of good'''
+    try:
+        cursor = conn.cursor()
+        cursor.execute(update_quantity_query, (new_quantity, good_name))
+        
+        return True
+    
+    except Exception as err:
+        print(f'ERROR WITH UPDATING GOOD QUANTITY --- {err}')
+        return False

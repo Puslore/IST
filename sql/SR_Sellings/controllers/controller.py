@@ -1,3 +1,4 @@
+import re
 from database.session import *
 
 # TODO
@@ -47,28 +48,51 @@ class ShopController:
         good_data = get_good_by_name(self.connection, name)
         keys = ['name', 'price', 'amount']
         good_info = {k: good_data[k] for k in keys}
-        
+
         return good_info
-    
-    def process_purchase(self, string_: str, quantity: int):
+
+    def process_purchase(self, string_: str, quantity: int) -> str:
         try:
-            name = string_.split(':')[0]
+            name = string_.split(',')[0]
+            print(name, 'dsmklfsaklfkldsfmkldsfmkldsfmkdsmflkdsmflkdsmfld')
             good = self.get_good_by_name(name)
-            
-            success = 
-            return None
-        
+            price = int(string_.split(':')[-1].split()[0])
+
+            success = self.create_receipt(good['name'], quantity, price)
+            print(success, 'отладка success -=-=-=-=-=-=-=-=-=-')
+            if success:
+                return f'Успешно! Куплено: {name}, в количестве {quantity} шт. суммарной стоимостью {price}'
+            else:
+                raise Exception('Error with process_purchase')
+
         except Exception as err:
             print(f'ERROR WITH PURCHASE PROCESS --- {err}')
-            return None
-    
-    # TODO
-    def update_product_quantity(self, product_name, new_quantity):
-        ...
+            return 'Ошибка------------------'
 
-    def create_receipt(self, product_name, quantity, total_price):
-        receipt_data = ...
-        receipt = create_receipt(self.connection, receipt_data)
+
+    def update_product_quantity(self, product_name: str, new_quantity: int) -> bool:
+        try:
+            success = update_good_quantity(self.connection, product_name, new_quantity)
+            if success:
+                return True
+            else:
+                raise Exception('yes, unknown error')
+        
+        except Exception as err:
+            print(f'ERROR UPDATING QUANTITY(controller) --- {err}')
+            return False
+
+
+    def create_receipt(self, product_name: str, quantity: int, total_price: float) -> bool:
+        try:
+            good_info = get_good_by_name(self.connection, product_name)
+            receipt_data = [good_info['id'], quantity, total_price]
+            create_receipt(self.connection, receipt_data)
+            return True
+        
+        except Exception as err:
+            print(f'ERROR WITH CREATING RECEIPT --- {err}')
+            return False
 
 
     def close_connection(self):
