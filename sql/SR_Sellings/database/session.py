@@ -12,16 +12,16 @@ insert_good_query = "INSERT INTO goods (name, category_id, price, amount) VALUES
 # Запрос для вставки чеков
 # insert_receipt_query = "INSERT INTO receipts (date, total_amount) VALUES (?, ?)"
 
-# Запрос для вставки операций
-insert_receipt_query = "INSERT INTO receipts (product_id, amount, total_price) VALUES (?, ?, ?)"
+# Запрос для вставки чеков
+insert_receipt_query = "INSERT INTO receipts (product_id, amount, total_price, date) VALUES (?, ?, ?, ?)"
 
 # Запрос для обновления количества товара
 update_quantity_query = "UPDATE goods SET amount = ? WHERE name = ?"
 
 # current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-# Запрос для создания чека
-query = "INSERT INTO receipts (product_id, amount, price, total_price) VALUES (?, ?, ?, ?)"
+# Запрос для получения чеков за день
+receipts_by_day_query = "SELECT * FROM receipts WHERE date LIKE ? ORDER BY date DESC"
 
 
 
@@ -240,3 +240,27 @@ def update_good_quantity(conn, good_name: str, new_quantity: int) -> bool:
     except Exception as err:
         print(f'ERROR WITH UPDATING GOOD QUANTITY --- {err}')
         return False
+
+def get_good_name_by_id(conn, id: int) -> str:
+    try:
+        cursor = conn.cursor()
+        cursor.execute('SELECT goods.name FROM goods WHERE goods.id = ?', (id,))
+        good_name = cursor.fetchone()
+        
+        return good_name[0]
+    
+    except Exception as err:
+        print(f'ERROR WITH GETTING GOOD NAME BY ID')
+        return 'ERR'
+
+def get_receipts_by_date(conn, date: str) -> list:
+    try:
+        cursor = conn.cursor()
+        cursor.execute(receipts_by_day_query, (date,))
+        data = cursor.fetchall()
+        
+        return data
+    
+    except Exception as err:
+        print(f'ERROR WITH GETTING RECEIPTS BY DATE --- {err}')
+        return []

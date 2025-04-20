@@ -33,6 +33,6 @@ CREATE TABLE IF NOT EXISTS receipts (
     product_id INTEGER NOT NULL,
     amount INTEGER NOT NULL,
     total_price FLOAT NOT NULL,
-    FOREIGN KEY (product_id) REFERENCES goods(id)
+    date TEXT NOT NULL
 )
 '''

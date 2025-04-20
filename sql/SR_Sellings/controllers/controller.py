@@ -51,24 +51,24 @@ class ShopController:
 
         return good_info
 
-    def process_purchase(self, string_: str, quantity: int) -> str:
+    def process_purchase(self, name: str, quantity: int) -> str:
         try:
-            name = string_.split(',')[0]
             print(name, 'dsmklfsaklfkldsfmkldsfmkldsfmkdsmflkdsmflkdsmfld')
             good = self.get_good_by_name(name)
-            price = int(string_.split(':')[-1].split()[0])
+            price = good['price']
+            total_price = quantity * price
+            date = datetime.now().strftime("%Y-%m-%d")
 
-            success = self.create_receipt(good['name'], quantity, price)
+            success = self.create_receipt(name, quantity, total_price, date)
             print(success, 'отладка success -=-=-=-=-=-=-=-=-=-')
             if success:
-                return f'Успешно! Куплено: {name}, в количестве {quantity} шт. суммарной стоимостью {price}'
+                return f'Успешно! Куплено: {name}, в количестве {quantity} шт. суммарной стоимостью {total_price}\nДата: {date}'
             else:
                 raise Exception('Error with process_purchase')
 
         except Exception as err:
             print(f'ERROR WITH PURCHASE PROCESS --- {err}')
             return 'Ошибка------------------'
-
 
     def update_product_quantity(self, product_name: str, new_quantity: int) -> bool:
         try:
@@ -82,11 +82,10 @@ class ShopController:
             print(f'ERROR UPDATING QUANTITY(controller) --- {err}')
             return False
 
-
-    def create_receipt(self, product_name: str, quantity: int, total_price: float) -> bool:
+    def create_receipt(self, product_name: str, quantity: int, total_price: float, date: str) -> bool:
         try:
             good_info = get_good_by_name(self.connection, product_name)
-            receipt_data = [good_info['id'], quantity, total_price]
+            receipt_data = [good_info['id'], quantity, total_price, date]
             create_receipt(self.connection, receipt_data)
             return True
         
@@ -94,6 +93,27 @@ class ShopController:
             print(f'ERROR WITH CREATING RECEIPT --- {err}')
             return False
 
+    def get_receipts_by_date(self, date_str):
+        try:
+
+            receipts_data = get_receipts_by_date(self.connection, date_str)
+            receipts = []
+            for row in receipts_data:
+                product_name = get_good_name_by_id(self.connection, row[1])
+                receipt = {
+                    'id': row[0],
+                    'product_name': product_name,
+                    'quantity': row[2],
+                    'total_price': round(row[3], 2),
+                    'date': row[4]
+                }
+                receipts.append(receipt)
+
+            return receipts
+
+        except Exception as e:
+            print(f"Ошибка при получении чеков по дате: {e}")
+            return []
 
     def close_connection(self):
         '''Closing connection with DB'''
