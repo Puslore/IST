@@ -16,17 +16,6 @@ CREATE TABLE IF NOT EXISTS goods (
 )
 '''
 
-# table_receipts = '''
-# CREATE TABLE IF NOT EXISTS receipts (
-#     id INTEGER PRIMARY KEY,
-#     date TEXT NOT NULL,
-#     total_amount FLOAT NOT NULL
-# )
-# '''
-
-# receipt_id INTEGER NOT NULL,
-# price FLOAT NOT NULL,
-# FOREIGN KEY (receipt_id) REFERENCES receipts(id),
 table_receipts = '''
 CREATE TABLE IF NOT EXISTS receipts (
     id INTEGER PRIMARY KEY,

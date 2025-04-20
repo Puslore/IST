@@ -18,11 +18,8 @@ insert_receipt_query = "INSERT INTO receipts (product_id, amount, total_price, d
 # Запрос для обновления количества товара
 update_quantity_query = "UPDATE goods SET amount = ? WHERE name = ?"
 
-# current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
 # Запрос для получения чеков за день
 receipts_by_day_query = "SELECT * FROM receipts WHERE date LIKE ? ORDER BY date DESC"
-
 
 
 def get_connection(path: str):
@@ -42,7 +39,6 @@ def init_db(path: str):
         cursor.execute(table_categories)
         cursor.execute(table_goods)
         cursor.execute(table_receipts)
-        # cursor.execute(table_operations)
         
         print('---DB initialized correctly')
     
@@ -114,26 +110,6 @@ def create_receipt(conn, data):
         print(f'Error while creating new receipt - {err}')
 
 
-# def create_receipt(conn, data):
-#     '''Creating receipt'''
-#     try:
-#         cursor = conn.cursor()
-#         if type(data) is not list:
-#             cursor.execute(insert_receipt_query, data)
-
-#             print('---Receipt created corrcetly')
-
-#         else:
-#             cursor.executemany(insert_receipt_query, data)
-
-#             print('---Receipts created corrcetly')
-
-#         conn.commit()
-
-#     except Exception as err:
-#         print(f'Error while creating new receipt - {err}')
-
-
 def get_goods_names_and_amount(conn) -> dict:
     '''Return list with names and amount of goods'''
     query = '''
@@ -189,7 +165,6 @@ def get_good_by_name(conn, good_name: str) -> dict:
         cursor = conn.cursor()
         cursor.execute(query, (good_name,))
         data = cursor.fetchone()
-        print(data, 'flld,sfdsindashbvaiwuevfnwcywqvr3454678909976875645354566778')
         fields = [
             'id',
             'name',
@@ -198,7 +173,6 @@ def get_good_by_name(conn, good_name: str) -> dict:
             'amount'
         ]
         data = dict(zip(fields, data))
-        print(data, 'datadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadata')
 
         return data
 

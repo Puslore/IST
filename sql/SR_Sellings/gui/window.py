@@ -6,9 +6,6 @@ from PyQt5.QtWidgets import (QDialog, QMainWindow,
 from PyQt5.QtCore import QDate, Qt
 from controllers.controller import ShopController
 
-# TODO
-# доработать, исправить отображение товаров
-# ShopWindow.buy_product, ShopWindow.buy_receipts
 
 class ShopWindow(QMainWindow):
     def __init__(self, controller: ShopController):
@@ -116,17 +113,6 @@ class ShopWindow(QMainWindow):
         except Exception as err:
             QMessageBox.critical(self, "Ошибка", f"Не удалось получить информацию о товаре: {err}")
 
-    # def update_available_quantity_from_buy_process(self, name:str, quantity: int):
-    #     try:
-    #         product_info = self.controller.get_good_by_name(name)
-    #         available_qty = product_info["amount"]
-    #         new_available_quantity = available_qty - quantity
-    #         self.qty_spin.setRange(1, new_available_quantity)
-    #         self.qty_spin.setValue(1)
-
-    #     except Exception as err:
-    #         QMessageBox.critical(self, "Ошибка", f"Не удалось получить информацию о товаре: {err}")
-  
     def buy_product(self):
         text = self.prod_combo.currentText()
         product_name = self.extract_product_name(text)

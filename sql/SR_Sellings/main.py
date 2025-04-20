@@ -6,8 +6,6 @@ from PyQt5.QtWidgets import QApplication
 from gui.window import ShopWindow
 from controllers.controller import ShopController
 
-# TODO
-# window.py, controller.py
 
 def gui(path: str):
     '''creates GUI'''
@@ -72,12 +70,9 @@ def check_db_exist(path: str) -> bool:
 
 def main():
     '''Main function'''
-    path = './database/database.db'
-    create_db(path, need_csv_filling=True)
-    gui(path)
-    # conn = get_connection(path)
-    # print(get_goods_by_category(conn, 'Автотовары'))
-
+    PATH = './database/database.db'
+    create_db(PATH)
+    gui(PATH)
 
 if __name__ == "__main__":
     main()

@@ -53,7 +53,6 @@ class ShopController:
 
     def process_purchase(self, name: str, quantity: int) -> str:
         try:
-            print(name, 'dsmklfsaklfkldsfmkldsfmkldsfmkdsmflkdsmflkdsmfld')
             good = self.get_good_by_name(name)
             price = good['price']
             total_price = quantity * price
@@ -95,11 +94,11 @@ class ShopController:
 
     def get_receipts_by_date(self, date_str):
         try:
-
             receipts_data = get_receipts_by_date(self.connection, date_str)
             receipts = []
             for row in receipts_data:
                 product_name = get_good_name_by_id(self.connection, row[1])
+                print(product_name)
                 receipt = {
                     'id': row[0],
                     'product_name': product_name,
