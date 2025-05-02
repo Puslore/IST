@@ -2,11 +2,13 @@ from PyQt5.QtWidgets import (QDialog, QMainWindow,
                              QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                              QComboBox, QSpinBox, QPushButton, QMessageBox,
                              QDateEdit, QTableWidget, QTableWidgetItem,
-                             QHeaderView)
+                             QHeaderView, QLineEdit, QFormLayout)
 from PyQt5.QtCore import QDate, Qt
 from controllers.controller import ShopController
 
-
+# TODO
+# добавление товара
+# множественная покупка
 class ShopWindow(QMainWindow):
     def __init__(self, controller: ShopController):
         super().__init__()
@@ -56,8 +58,11 @@ class ShopWindow(QMainWindow):
         self.buy_btn.clicked.connect(self.buy_product)
         self.receipts_btn = QPushButton('Просмотр чеков')
         self.receipts_btn.clicked.connect(self.show_receipts)
+        self.add_product_btn = QPushButton('Добавить товар(только для админов!)')
+        self.add_product_btn.clicked.connect(self.add_product)
         btn_layout.addWidget(self.buy_btn)
         btn_layout.addWidget(self.receipts_btn)
+        btn_layout.addWidget(self.add_product_btn)
         main_layout.addLayout(btn_layout)
         
     def load_categories(self):
@@ -76,7 +81,7 @@ class ShopWindow(QMainWindow):
             products_data = []
             for product in products_list:
                 product_info = self.get_product_info(product)
-                products_data.append(f'{product}, цена за шт: {product_info["price"]}, на складе:{product_info["amount"]} шт.')
+                products_data.append(f'{product}, цена за шт: {product_info["price"]}, на складе: {product_info["amount"]} шт.')
             print(products_data, 'тут инфа о продуктах')
 
             self.prod_combo.clear()
@@ -98,7 +103,102 @@ class ShopWindow(QMainWindow):
     def extract_product_name(self, full_text):
         return full_text.split(',')[0]
 
-    
+    def add_product(self):
+        try:
+            add_product_dialog = QDialog(self)
+            add_product_dialog.setWindowTitle('Добавление товара')
+            add_product_dialog.setMinimumWidth(600)
+            add_product_dialog.setMinimumHeight(400)
+
+            # Создаем форму для ввода данных
+            form_layout = QFormLayout()
+
+            # Поле для ввода имени
+            name_input = QLineEdit()
+            form_layout.addRow(QLabel('Имя:'), name_input)
+
+            # Блок выбора категории
+            cat_combo_dialog = QComboBox()
+            cat_combo_dialog.addItems(self.controller.get_all_categories())
+            form_layout.addRow(QLabel('Категория:'), cat_combo_dialog)
+
+            # Поле для ввода цены
+            price_input = QLineEdit()
+            form_layout.addRow(QLabel('Цена:'), price_input)
+
+            # Поле для ввода количества
+            amount_input = QLineEdit()
+            form_layout.addRow(QLabel('Количество:'), amount_input)
+
+            # Кнопка подтверждения
+            btn_ok = QPushButton('Добавить')
+            btn_cancel = QPushButton('Отмена')
+
+            # Создаем горизонтальный layout для кнопок
+            buttons_layout = QHBoxLayout()
+            buttons_layout.addWidget(btn_ok)
+            buttons_layout.addWidget(btn_cancel)
+            form_layout.addRow(buttons_layout)
+
+            add_product_dialog.setLayout(form_layout)
+
+            # Подключаем сигналы кнопок
+            btn_ok.clicked.connect(add_product_dialog.accept)
+            btn_cancel.clicked.connect(add_product_dialog.reject)
+
+            # Показываем диалог и ждем подтверждения
+            if add_product_dialog.exec_() == QDialog.Accepted:
+                # Собираем данные из полей ввода
+                name = name_input.text().strip()
+                category = cat_combo_dialog.currentText()
+                
+                # Проверка на пустое имя товара
+                if not name:
+                    QMessageBox.warning(self, 'Предупреждение', 'Имя товара не может быть пустым')
+                    return
+                
+                # Попытка преобразования цены и количества в числовые значения
+                try:
+                    price = float(price_input.text().strip())
+                except ValueError:
+                    QMessageBox.warning(self, 'Предупреждение', 'Цена должна быть числом')
+                    return
+                
+                try:
+                    amount = int(amount_input.text().strip())
+                except ValueError:
+                    QMessageBox.warning(self, 'Предупреждение', 'Количество должно быть целым числом')
+                    return
+                
+                # Проверяем существование товара и выполняем соответствующее действие
+                if not self.controller.get_good_by_name(name):
+                    # Создание нового товара
+                    data = {
+                        'name': name,
+                        'category': category,
+                        'price': price,
+                        'amount': amount
+                    }
+
+                    if self.controller.create_new_product(data):
+                        QMessageBox.information(self, 'Успех', f'Товар "{name}" успешно добавлен')
+                        # Обновляем список товаров
+                        self.load_products()
+                    else:
+                        QMessageBox.warning(self, 'Ошибка', 'Не удалось добавить товар')
+
+                else:
+                    # Обновление количества существующего товара
+                    if self.controller.add_product(name, int(amount)):
+                        QMessageBox.information(self, 'Успех', f'Количество товара "{name}" увеличено на {amount}')
+                        # Обновляем список товаров
+                        self.load_products()
+                    else:
+                        QMessageBox.warning(self, 'Ошибка', 'Не удалось обновить количество товара')
+        
+        except Exception as err:
+            QMessageBox.critical(self, 'Ошибка', f'Ошибка при добавлении товара: {err}')
+
     def update_available_quantity(self):
         try:
             product_text = self.prod_combo.currentText()

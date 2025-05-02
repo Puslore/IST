@@ -21,6 +21,9 @@ update_quantity_query = "UPDATE goods SET amount = ? WHERE name = ?"
 # Запрос для получения чеков за день
 receipts_by_day_query = "SELECT * FROM receipts WHERE date LIKE ? ORDER BY date DESC"
 
+# Запрос для получения id категории по ее имени
+get_category_id_by_name_query = "SELECT id FROM categories WHERE name = ?"
+
 
 def get_connection(path: str):
     '''Return connection with DB'''
@@ -71,7 +74,7 @@ def create_category(conn, data):
 
 
 def create_good(conn, data):
-    '''Creating operation'''
+    '''Creating good'''
     try:
         cursor = conn.cursor()
         if type(data) is not list:
@@ -214,6 +217,22 @@ def update_good_quantity(conn, good_name: str, new_quantity: int) -> bool:
     except Exception as err:
         print(f'ERROR WITH UPDATING GOOD QUANTITY --- {err}')
         return False
+
+def get_category_id_by_name(conn, category_name: str):
+    '''Return category id by category name'''
+    try:
+        cursor = conn.cursor()
+        cursor.execute(get_category_id_by_name_query, (category_name,))
+        result = cursor.fetchone()
+        if result:
+            return result[0]
+        else:
+            return None
+
+    except Exception as err:
+        print(f'Error while getting category id by name - {err}')
+        return None
+
 
 def get_good_name_by_id(conn, id: int) -> str:
     try:

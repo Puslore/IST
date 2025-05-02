@@ -113,6 +113,44 @@ class ShopController:
         except Exception as e:
             print(f"Ошибка при получении чеков по дате: {e}")
             return []
+    
+    def add_product(self, good_name: str, amount: int) -> bool:
+        try:
+            product_info = get_good_by_name(self.connection, good_name)
+            curr_amount = product_info['amount']
+            new_amount = curr_amount + amount
+            update_good_quantity(self.connection, good_name, new_amount)
+            return True
+        
+        except Exception as err:
+            print(f'ERROR WITH ADDING NEW PRODUCT --- {err}')
+            return False
+    
+    def create_new_product(self, data_dict) -> bool:
+        try:
+            # Получаем id категории по имени
+            category_id = get_category_id_by_name(self.connection, data_dict['category'])
+            
+            if not category_id:
+                print(f'Категория "{data_dict["category"]}" не найдена')
+                return False
+            
+            # Создаем кортеж для передачи
+            data_tuple = (
+                data_dict['name'],
+                category_id,
+                data_dict['price'],
+                data_dict['amount']
+            )
+            
+            # Вызываем функцию из session.py для создания товара
+            create_good(self.connection, data_tuple)
+            return True
+
+        except Exception as err:
+            print(f'ERROR WITH CREATING NEW PRODUCT FROM INTERFACE --- {err}')
+            return False
+
 
     def close_connection(self):
         '''Closing connection with DB'''
